@@ -1,10 +1,8 @@
 from fastapi import FastAPI
+from auth.router import router as router_operation
 
 app = FastAPI(
     title="Estate App",
 )
 
-
-@app.get("/")
-def main():
-    return "Hello world!"
+app.include_router(router_operation)

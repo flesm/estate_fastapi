@@ -13,6 +13,7 @@ from src.database import Base
 import os
 import sys
 
+#  для таго, каб міграцыі бачылі наш src файл
 sys.path.append(os.path.join(sys.path[0], 'src'))
 
 # this is the Alembic Config object, which provides
