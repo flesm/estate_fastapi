@@ -5,9 +5,9 @@ from fastapi_users import BaseUserManager, IntegerIDMixin, exceptions, models, s
 from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.auth.models import User
-from src.config import SECRET_AUTH
-from src.database import get_async_session
+from auth.models import User
+from config import SECRET_AUTH
+from database import get_async_session
 
 
 class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
@@ -28,7 +28,6 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
     #):
     #    print(f"Verification requested for user {user.id}. Verification token: {token}")
 
-    # прыбраць, т.я. і так рэалізавана класам вышэй
     async def create(
             self,
             user_create: schemas.UC,
