@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTable
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, JSON, TIMESTAMP, Text
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, TIMESTAMP
 from sqlalchemy.orm import relationship
 
 from database import Base
@@ -11,7 +11,11 @@ class Role(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
-    permissions = Column(JSON, nullable=False)
+
+    can_apply_for_specialist = Column(Boolean, default=False, nullable=False)
+    can_view_profile = Column(Boolean, default=False, nullable=False)
+    can_fill_evaluation_form = Column(Boolean, default=False, nullable=False)
+    can_edit_user_data = Column(Boolean, default=False, nullable=False)
 
     users = relationship('User', back_populates='role')
 

@@ -9,6 +9,7 @@ class SpecialistCreate(BaseModel):
     email: EmailStr
     phone_number: Optional[str]
     social_media_url: Optional[str]
+    user_id: int
 
 class SpecialistRead(SpecialistCreate):
     id: int
