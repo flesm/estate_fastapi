@@ -33,20 +33,5 @@ class User(SQLAlchemyBaseUserTable[int], Base):
     role_id = Column(Integer, ForeignKey('role.id'), nullable=False)
 
     role = relationship('Role', back_populates='users')
-    specialist_info = relationship('Specialist', uselist=False, back_populates='user')
-
-
-# class Specialist(Base):
-#     __tablename__ = 'specialist'
-#
-#     id = Column(Integer, primary_key=True)
-#     name = Column(String, nullable=False)
-#     years_of_experience = Column(Integer, nullable=False)
-#     photo_url = Column(String)
-#     description = Column(Text)
-#     email = Column(String(255), nullable=True)
-#     phone_number = Column(String, nullable=True)
-#     social_media_url = Column(String, nullable=True)
-#     user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
-#
-#     user = relationship('User', back_populates='specialist_info')
+    specialist = relationship('Specialist', uselist=False, back_populates='user')
+    estate = relationship('Estate', back_populates='user')

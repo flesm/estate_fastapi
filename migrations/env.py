@@ -7,6 +7,9 @@ from alembic import context
 
 from src.auth.models import User, Role
 from src.specialist.models import Specialist
+from src.estate.models import Estate
+from src.report.models import Report
+
 from src.config import DB_HOST, DB_USER, DB_PORT, DB_NAME, DB_PASS
 from src.database import Base
 
