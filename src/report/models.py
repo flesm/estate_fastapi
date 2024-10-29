@@ -4,7 +4,7 @@ from datetime import datetime
 from database import Base
 
 class Report(Base):
-    __tablename__ = "report"
+    __tablename__ = 'report'
 
     id = Column(Integer, primary_key=True, index=True)
     estimated_value = Column(Float, nullable=False)  # ацэначны кошт
@@ -12,4 +12,4 @@ class Report(Base):
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
 
     estate_id = Column(Integer, ForeignKey('estate.id'), nullable=False)
-    estate = relationship("Estate", back_populates="reports")
+    estate = relationship('Estate', back_populates='report')

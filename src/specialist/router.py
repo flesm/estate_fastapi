@@ -45,11 +45,11 @@ async def become_specialist(
     await db.commit()
     await db.refresh(new_specialist)
 
-    # # sending data to crm
-    # crm_data = specialist_data.model_dump()
-    # crm_success = await send_to_crm(crm_data)
-    #
-    # if not crm_success:
-    #     raise HTTPException(status_code=500, detail="Failed to send CRM data")
+    # sending data to crm
+    crm_data = specialist_data.model_dump()
+    crm_success = send_to_crm(crm_data)
+
+    if not crm_success:
+        raise HTTPException(status_code=500, detail="Failed to send CRM data")
 
     return new_specialist

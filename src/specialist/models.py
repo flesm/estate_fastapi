@@ -13,7 +13,8 @@ class Specialist(Base):
     email = Column(String(255), nullable=True)
     phone_number = Column(String, nullable=True)
     social_media_url = Column(String, nullable=True)
-    user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
     is_approved = Column(Boolean, default=False)
 
-    user = relationship('User', back_populates='specialist_info')
+    user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
+
+    user = relationship('User', back_populates='specialist')

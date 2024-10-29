@@ -3,7 +3,7 @@ from sqlalchemy.orm import relationship
 from database import Base
 
 class Estate(Base):
-    __tablename__ = "estate"
+    __tablename__ = 'estate'
 
     id = Column(Integer, primary_key=True, index=True)
     area_total = Column(Float, nullable=False)  # агульная плошча нерухомасці
@@ -23,5 +23,5 @@ class Estate(Base):
     internet = Column(Boolean, nullable=True)  # наяўнасць інтэрнэту
 
     user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
-    user = relationship("User", back_populates="estate")
-    report = relationship("Report", back_populates="estate")
+    user = relationship('User', back_populates='estate')
+    report = relationship('Report', back_populates='estate')
