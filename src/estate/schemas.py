@@ -19,7 +19,7 @@ class EstateBaseSchema(BaseModel):
     internet: Optional[bool] = None
 
 class EstateCreateSchema(EstateBaseSchema):
-    user_id: int
+    pass
 
 class EstateUpdate(BaseModel):
     area_total: Optional[float] = None
