@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from specialist.schemas import SpecialistCreate
 from specialist.models import Specialist
-from specialist.service import send_to_crm
+from specialist.service import send_to_crm, update_crm_status
 from database import get_async_session
 from auth.base_config import current_user
 
@@ -53,3 +53,18 @@ async def become_specialist(
         raise HTTPException(status_code=500, detail="Failed to send CRM data")
 
     return new_specialist
+
+
+@router.post("/approve-specialist/{lead_id}")
+async def approve_specialist(lead_id: int):
+    success = update_crm_status(lead_id, "APPROVED")
+    if not success:
+        raise HTTPException(status_code=500, detail="Failed to approve specialist in CRM")
+    return {"message": "Specialist approved successfully"}
+
+@router.post("/reject-specialist/{lead_id}")
+async def reject_specialist(lead_id: int):
+    success = update_crm_status(lead_id, "REJECTED")
+    if not success:
+        raise HTTPException(status_code=500, detail="Failed to reject specialist in CRM")
+    return {"message": "Specialist rejected successfully"}
