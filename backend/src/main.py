@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
 from auth.router import router as router_auth
 from specialist.router import router as router_spec
 from admin.router import router as router_admin
@@ -15,6 +17,17 @@ app.include_router(router_admin)
 app.include_router(router_estate)
 app.include_router(router_report)
 app.include_router(router_news)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 
