@@ -52,19 +52,17 @@ async def become_specialist(
     if not crm_success:
         raise HTTPException(status_code=500, detail="Failed to send CRM data")
 
-    return new_specialist
+    return specialist_data
 
 
-@router.post("/approve-specialist/{lead_id}")
-async def approve_specialist(lead_id: int):
-    success = update_crm_status(lead_id, "APPROVED")
-    if not success:
-        raise HTTPException(status_code=500, detail="Failed to approve specialist in CRM")
-    return {"message": "Specialist approved successfully"}
+@router.get("/approved-specialists")
+async def get_approved_specialists(db: AsyncSession = Depends(get_async_session)):
+    result = await db.execute(select(Specialist).where(Specialist.is_approved == True))
+    specialists = result.scalars().all()
 
-@router.post("/reject-specialist/{lead_id}")
-async def reject_specialist(lead_id: int):
-    success = update_crm_status(lead_id, "REJECTED")
-    if not success:
-        raise HTTPException(status_code=500, detail="Failed to reject specialist in CRM")
-    return {"message": "Specialist rejected successfully"}
+    if not specialists:
+        return {"message": "No approved specialists found"}
+
+    return specialists
+
+

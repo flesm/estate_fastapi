@@ -18,10 +18,13 @@ class EstateBaseSchema(BaseModel):
     gas: Optional[bool] = None
     internet: Optional[bool] = None
 
+    class Config:
+        orm_mode = True
+
 class EstateCreateSchema(EstateBaseSchema):
     pass
 
-class EstateUpdate(BaseModel):
+class EstateUpdateSchema(EstateBaseSchema):
     area_total: Optional[float] = None
     floor_number: Optional[int] = None
     total_floors: Optional[int] = None
@@ -41,6 +44,3 @@ class EstateUpdate(BaseModel):
 class EstateReadSchema(EstateBaseSchema):
     id: int
     user_id: int
-
-    class Config:
-        orm_mode = True

@@ -2,14 +2,15 @@ from pydantic import BaseModel
 from datetime import datetime
 from estate.schemas import EstateReadSchema
 
-class ReportReadSchema(BaseModel):
-    id: int
+class ReportBaseSchema(BaseModel):
     estimated_value: float
     price_per_sqm: float
     created_at: datetime
-    estate: EstateReadSchema
-
 
     class Config:
-        from_attributes = True
         orm_mode = True
+        from_attributes = True
+
+class ReportReadSchema(ReportBaseSchema):
+    id: int
+    estate: EstateReadSchema

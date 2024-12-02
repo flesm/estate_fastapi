@@ -10,9 +10,9 @@ const Login = () => {
     setLoading(true);
 
     const formData = new URLSearchParams();
-    formData.append('grant_type', 'password');
-    formData.append('username', values.email);
+    formData.append('username', values.username);
     formData.append('password', values.password);
+
 
     fetch('http://127.0.0.1:8000/auth/login', {
       method: 'POST',
@@ -31,10 +31,10 @@ const Login = () => {
       })
       .then((data) => {
         message.success('Успешный вход!');
-        localStorage.setItem('token', data.access_token); // Сохранение токена
+        localStorage.setItem('token', data.access_token);
         console.log('Received token:', data.access_token);
         window.dispatchEvent(new Event("authChange"));
-        navigate('/'); // Перенаправление на главную страницу
+        navigate('/');
       })
       .catch((error) => {
         message.error(error.message);
@@ -76,7 +76,7 @@ const Login = () => {
         </Form>
         <p className="text-center text-sm text-gray-600 mt-4">
           Нет аккаунта?{' '}
-          <a href="/register" className="text-blue-500 hover:underline">
+          <a href="/reg" className="text-blue-500 hover:underline">
             Зарегистрироваться
           </a>
         </p>

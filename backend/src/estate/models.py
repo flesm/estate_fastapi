@@ -25,3 +25,6 @@ class Estate(Base):
     user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
     user = relationship('User', back_populates='estate')
     report = relationship('Report', back_populates='estate')
+
+    def to_dict(self):
+        return {column.name: getattr(self, column.name) for column in self.__table__.columns}

@@ -1,7 +1,7 @@
 import requests
 
-BITRIX24_URL = "https://b24-8xamtz.bitrix24.by/rest/1/wxcbo48uim8u2rid/crm.lead.add"
-BITRIX24_UPDATE_URL = "https://b24-8xamtz.bitrix24.by/rest/1/wxcbo48uim8u2rid/crm.lead.update"
+BITRIX24_URL = "https://b24-arqnuo.bitrix24.ru/rest/1/mglbzmpyjo4qwyp2/crm.lead.add"
+BITRIX24_UPDATE_URL = "https://b24-arqnuo.bitrix24.ru/rest/1/mglbzmpyjo4qwyp2/crm.lead.update"
 
 def send_to_crm(specialist_data):
     payload = {

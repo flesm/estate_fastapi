@@ -9,6 +9,7 @@ from sqlalchemy.orm import selectinload
 from auth.base_config import current_user
 from database import get_async_session
 from estate.models import Estate
+from estate.schemas import EstateReadSchema, EstateCreateSchema
 from report.models import Report
 from report.shcemas import ReportReadSchema
 from valuation_algorithm import calculate_estimate
@@ -19,29 +20,20 @@ router = APIRouter(
 )
 
 
-@router.post("/{estate_id}/create-report", response_model=ReportReadSchema)
-async def create_report(
-        estate_id: int,
+@router.post("/create-report", response_model=ReportReadSchema)
+async def create_estate(
+        estate_data: EstateCreateSchema,
         db: AsyncSession = Depends(get_async_session),
-        user = Depends(current_user)
+        user=Depends(current_user)
 ):
-    result = await db.execute(
-        select(Estate).filter(Estate.id == estate_id, Estate.user_id == user.id)
-    )
-    estate = result.scalars().first()
-
-    if not estate:
-        raise HTTPException(status_code=404, detail="Estate not found")
-
-
-    # deleting existing report (to avoid duplicate)
-    await db.execute(
-        delete(Report).where(Report.estate_id == estate_id)
-    )
+    # Создание объекта недвижимости
+    estate = Estate(**estate_data.model_dump(), user_id=user.id)
+    db.add(estate)
     await db.commit()
+    await db.refresh(estate)
 
+    # Расчет стоимости и создание отчета
     estimated_value, price_per_sqm = calculate_estimate(estate)
-
     report = Report(
         estimated_value=estimated_value,
         price_per_sqm=price_per_sqm,
@@ -51,9 +43,18 @@ async def create_report(
     db.add(report)
     await db.commit()
     await db.refresh(report)
-    report.estate = estate
 
-    return report
+    # Преобразование объекта estate в словарь для Pydantic-схемы
+    estate_dict = estate.to_dict()  # или использовать .dict() для более старых версий Pydantic
+
+    # Возврат данных через схемы
+    return ReportReadSchema(
+        id=report.id,
+        estimated_value=report.estimated_value,
+        price_per_sqm=report.price_per_sqm,
+        created_at=report.created_at,
+        estate=EstateReadSchema.model_validate(estate_dict)  # Передаем словарь
+    )
 
 
 
