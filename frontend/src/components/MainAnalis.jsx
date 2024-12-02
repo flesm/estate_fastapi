@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Form, Input, Select, Checkbox, Button, Layout, Menu, message, Card } from "antd";
+import {Form, Input, Select, Checkbox, Button, Layout, Menu, message, Card, Modal} from "antd";
 import { useNavigate } from "react-router-dom";
 import { YMaps, Map, Placemark } from '@pbe/react-yandex-maps';
+import axios from "axios";
 
 const { Header, Content } = Layout;
 
 const MainAnalis = () => {
+  const [isModalVisible, setModalVisible] = useState(false);
   const [coordinates, setCoordinates] = useState([53.9006, 27.559]); // Координаты Минска
   const [address, setAddress] = useState("");
   const navigate = useNavigate();
@@ -30,41 +32,35 @@ const MainAnalis = () => {
 
   const [reportData, setReportData] = useState(null);
 
-  const handleMapLoad = (ymapsInstance) => {
-    console.log("Yandex Maps API успешно загружен");
-    if (window.ymaps) {
-      console.log("API доступен в глобальном контексте");
-    } else {
-      console.error("API не доступен в глобальном контексте");
+ const handleMapClick = async (event) => {
+    const newCoordinates = event.get('coords'); // Получаем новые координаты
+    setCoordinates(newCoordinates);
+
+    // Запрос на бэкенд для получения адреса
+    try {
+      const response = await axios.get('http://127.0.0.1:8000/maps/get_address', {
+        params: {
+          lat: newCoordinates[0],
+          lon: newCoordinates[1],
+        },
+      });
+      setAddress(response.data.address); // Устанавливаем адрес
+    } catch (error) {
+      console.error('Ошибка при получении адреса:', error);
     }
   };
 
-  const handleMapClick = async (event) => {
-    const coords = event.get("coords");
-    setCoordinates(coords);
+ const handleModalOpen = () => {
+    setModalVisible(true);
+  };
 
-    if (!window.ymaps) {
-      console.error("Yandex Maps API не загружен");
-      setAddress("Ошибка загрузки карты");
-      return;
-    }
+  const handleModalClose = () => {
+    setModalVisible(false);
+  };
 
-    try {
-      const geocoder = await window.ymaps.geocode(coords);
-      const firstGeoObject = geocoder.geoObjects.get(0);
-
-      if (firstGeoObject) {
-        const address = firstGeoObject.properties.get("text");
-        console.log("Адрес:", address);
-        setAddress(address || "Адрес не найден");
-      } else {
-        console.error("Геокодер вернул пустой результат.");
-        setAddress("Адрес не найден");
-      }
-    } catch (error) {
-      console.error("Ошибка при геокодировании:", error);
-      setAddress("Ошибка получения адреса");
-    }
+  const handleAddressSelect = (selectedAddress) => {
+    setAddress(selectedAddress); // Устанавливаем адрес
+    setModalVisible(false); // Закрываем модальное окно
   };
 
 
@@ -183,9 +179,22 @@ const MainAnalis = () => {
       >
         <h2 style={{ fontSize: "24px", marginBottom: "16px", color: "#333" }}>Узнайте рыночную цену недвижимости</h2>
 
-        {/* Form fields */}
-        <Form.Item label="Адрес" name="address" rules={[{ required: true, message: "Введите адрес" }]}>
-          <Input style={{ borderRadius: "4px", padding: "8px", fontSize: "16px" }} placeholder="Адрес и номер дома" />
+        <Form.Item
+          label="Адрес"
+          name="address"
+          rules={[{ required: true, message: "Введите адрес" }]}
+        >
+          <Input
+            style={{ borderRadius: "4px", padding: "8px", fontSize: "16px" }}
+            placeholder="Адрес и номер дома"
+            value={address} // Привязка к состоянию
+            onChange={(e) => setAddress(e.target.value)} // Обновление адреса вручную
+            suffix={
+              <Button type="link" onClick={handleModalOpen} style={{ padding: 0 }}>
+                Или показать на карте
+              </Button>
+            }
+          />
         </Form.Item>
 
         <Form.Item label="Общая площадь (м²)" name="area_total">
@@ -258,10 +267,20 @@ const MainAnalis = () => {
         </Form.Item>
 
         <Form.Item>
-          <Button type="primary" onClick={handleSubmit} block style={{ borderRadius: "4px", fontSize: "16px", backgroundColor: "#3498db", border: "none", cursor: "pointer" }} className="submit-button">
-            Узнать цену
-          </Button>
-        </Form.Item>
+            <Button
+              type="primary" onClick={handleSubmit}
+              block
+              style={{
+                borderRadius: "4px",
+                fontSize: "16px",
+                backgroundColor: "#3498db",
+                border: "none",
+                cursor: "pointer",
+              }}
+            >
+              Узнать цену
+            </Button>
+          </Form.Item>
       </Form>
 
         {reportData && (
@@ -300,32 +319,40 @@ const MainAnalis = () => {
           </Card>
         )}
 
-        <YMaps query={{ apikey: "0f33d76e-0644-470e-942b-ea01b075ee46", lang: "ru_RU" }}>
-          <Layout style={{ minHeight: '100vh', padding: '24px' }}>
-            <Layout.Content style={{ padding: '24px' }}>
-              <Form style={{ marginBottom: '16px' }}>
-                <Form.Item label="Адрес">
-                  <Input value={address} readOnly />
-                </Form.Item>
-              </Form>
-              <Map
-                defaultState={{
-                  center: coordinates,
-                  zoom: 12,
-                }}
-                onLoad={handleMapLoad}
-                onClick={handleMapClick}
-                style={{ border: '1px solid #ddd', borderRadius: '8px', width: '100%', height: '500px' }}
-              >
-                <Placemark
-                  geometry={coordinates}
-                  options={{ draggable: true }}
-                  onDragEnd={(e) => handleMapClick(e)}
-                />
-              </Map>
-            </Layout.Content>
-          </Layout>
-        </YMaps>
+        <Modal
+          title="Выбор адреса на карте"
+          visible={isModalVisible}
+          onCancel={handleModalClose}
+          footer={[
+            <Button key="cancel" onClick={handleModalClose}>
+              Отмена
+            </Button>,
+            <Button
+              key="confirm"
+              type="primary"
+              onClick={() => {
+                handleAddressSelect(address); // Устанавливаем выбранный адрес
+              }}
+            >
+              Подтвердить
+            </Button>,
+          ]}
+        >
+          <YMaps query={{ apikey: "0f33d76e-0644-470e-942b-ea01b075ee46", lang: "ru_RU" }}>
+            <Map
+              defaultState={{ center: coordinates, zoom: 12 }}
+              onClick={handleMapClick}
+              style={{ width: '100%', height: '400px' }}
+            >
+              <Placemark
+                geometry={coordinates}
+                options={{ draggable: true }}
+                onDragEnd={(e) => handleMapClick(e)}
+              />
+            </Map>
+          </YMaps>
+          <p>Адрес: {address}</p>
+        </Modal>
       </Content>
     </Layout>
   );
