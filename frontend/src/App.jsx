@@ -8,13 +8,12 @@ import News from "./components/News.jsx";
 import Profile from "./components/Profile.jsx";
 import Specialists from "./components/Specialists.jsx";
 import Admin from "./components/Admin.jsx";
+import Analis from "./components/Analis.jsx";
 
 function App() {
     return (
         <Router>
-
                 <Routes>
-
                     {<Route path="/" element={<MainAnalis />} />}
                     {<Route path="/login/" element={<Login />} />}
                     {<Route path="/reg/" element={<Register />} />}
@@ -22,10 +21,8 @@ function App() {
                     {<Route path="/profile/" element={<Profile />} />}
                     {<Route path="/specialists/" element={<Specialists />} />}
                     {<Route path="/admin/" element={<Admin />} />}
-
-
+                    {<Route path="/analis/" element={<Analis />} />}
                 </Routes>
-
         </Router>
     );
 }

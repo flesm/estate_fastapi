@@ -5,6 +5,13 @@ const Profile = () => {
   const [loading, setLoading] = useState(true); // Состояние загрузки
   const [error, setError] = useState(null); // Состояние ошибок
   const [showForm, setShowForm] = useState(false); // Состояние для отображения формы
+
+  const [analytics, setAnalytics] = useState([]);
+  const [showAnalytics, setShowAnalytics] = useState(false);
+
+  const [newAnalysisDescription, setNewAnalysisDescription] = useState("");
+  const [updatedAnalysisDescription, setUpdatedAnalysisDescription] = useState("");
+
   const [formData, setFormData] = useState({
     name: "",
     years_of_experience: 0,
@@ -59,6 +66,8 @@ const Profile = () => {
         return "Обычный пользователь";
       case 3:
         return "Специалист";
+      case 4:
+        return "Админ";
     }
   };
 
@@ -112,6 +121,100 @@ const Profile = () => {
     }
   };
 
+  const fetchAnalytics = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch("http://127.0.0.1:8000/analysis/my-analysis", {
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch analytics");
+      }
+
+      const data = await response.json();
+      setAnalytics(data);
+      setShowAnalytics(true);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const createAnalysis = async () => {
+    if (newAnalysisDescription) {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch("http://127.0.0.1:8000/analysis/new-analysis", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ description: newAnalysisDescription }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to create analysis");
+        }
+
+        const newAnalysis = await response.json();
+        setAnalytics([...analytics, newAnalysis]);
+        setNewAnalysisDescription("");
+      } catch (err) {
+        console.error("Error creating analysis:", err);
+      }
+    }
+  };
+
+  const deleteAnalysis = async (id) => {
+    try {
+      const token = localStorage.getItem("token");
+      await fetch(`http://127.0.0.1:8000/analysis/${id}`, {
+        method: "DELETE",
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setAnalytics(analytics.filter((item) => item.id !== id));
+    } catch (err) {
+      console.error("Error deleting analysis:", err);
+    }
+  };
+
+  const updateAnalysis = async (id) => {
+    if (updatedAnalysisDescription) {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(`http://127.0.0.1:8000/analysis/${id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ description: updatedAnalysisDescription }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to update analysis");
+        }
+
+        const updatedAnalysis = await response.json();
+        setAnalytics(
+          analytics.map((item) => (item.id === id ? updatedAnalysis : item))
+        );
+        setUpdatedAnalysisDescription("");
+      } catch (err) {
+        console.error("Error updating analysis:", err);
+      }
+    }
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -122,34 +225,46 @@ const Profile = () => {
 
   return (
     <div>
-      <h1>Профиль пользователя</h1>
+      <h1>Профиль</h1>
       {user ? (
-        <div>
-          <p>Имя пользователя: {user.email}</p>
-          <p>Роль: {user.role}</p>
-          {user.role === "Обычный пользователь" && (
+          <div>
+            <p>Имя: {user.email.split('@')[0]}</p>
+            <p>Почта: {user.email}</p>
+            <p>Роль: {user.role}</p>
+            {user.role === "Обычный пользователь" && (
+                <button
+                    className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
+                    onClick={() => setShowForm(!showForm)}
+                >
+                  Стать специалистом
+                </button>
+            )}
             <button
-              className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
-              onClick={() => setShowForm(!showForm)}
+                className="bg-blue-500 text-white px-4 py-2 mt-2 rounded hover:bg-blue-600"
+                onClick={fetchReports}
             >
-              Стать специалистом
+              История оценок
             </button>
-          )}
-          <button
-            className="bg-blue-500 text-white px-4 py-2 mt-2 rounded hover:bg-blue-600"
-            onClick={fetchReports}
-          >
-            История оценок
-          </button>
-        </div>
+            {user.role === "Специалист" && (
+                <button
+                    className="bg-green-500 text-white px-4 py-2 mt-2 rounded hover:bg-green-600"
+                    onClick={fetchAnalytics}
+                >
+                  Аналитика
+                </button>
+            )}
+          </div>
       ) : (
-        <p>Нет данных о пользователе.</p>
+          <p>Нет данных о пользователе.</p>
       )}
 
+      {error && <p className="text-red-500">Ошибка: {error}</p>}
+
+
       {showForm && (
-        <form onSubmit={handleFormSubmit} className="mt-4">
-          {/* Форма добавления данных */}
-          <div>
+          <form onSubmit={handleFormSubmit} className="mt-4">
+            {/* Форма добавления данных */}
+            <div>
             <label>Имя:</label>
             <input
               type="text"
@@ -269,7 +384,70 @@ const Profile = () => {
         </div>
       )}
 
-
+      {showAnalytics && (
+        <div>
+          <h2 className="mt-4">Аналитика</h2>
+          <div>
+            {analytics.map((analysis) => (
+                <div
+                    key={analysis.id}
+                    className="border p-4 rounded shadow mb-4"
+                >
+                  <p>
+                    <strong>Дата:</strong> {new Date(analysis.time_created).toLocaleString()}
+                  </p>
+                  <p>
+                    <strong>Описание:</strong> {analysis.description}
+                  </p>
+                  <div className="flex space-x-4 mt-2">
+                    <button
+                        className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                        onClick={() => deleteAnalysis(analysis.id)}
+                    >
+                      Удалить
+                    </button>
+                    <div className="flex items-center space-x-2">
+                      <input
+                          type="text"
+                          placeholder="Новое описание"
+                          value={updatedAnalysisDescription}
+                          onChange={(e) => setUpdatedAnalysisDescription(e.target.value)}
+                          className="border px-2 py-1 rounded"
+                      />
+                      <button
+                          className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
+                          onClick={() => updateAnalysis(analysis.id)}
+                      >
+                        Изменить
+                      </button>
+                    </div>
+                    <button
+                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                        onClick={() => console.log("Комментарии")}
+                    >
+                      Комментарии
+                    </button>
+                  </div>
+                </div>
+            ))}
+            <div className="mt-4">
+              <input
+                  type="text"
+                  placeholder="Описание новой аналитики"
+                  value={newAnalysisDescription}
+                  onChange={(e) => setNewAnalysisDescription(e.target.value)}
+                  className="border px-2 py-1 rounded"
+              />
+              <button
+                  className="bg-purple-500 text-white px-4 py-2 ml-2 rounded hover:bg-purple-600"
+                  onClick={createAnalysis}
+              >
+                Создать аналитику
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

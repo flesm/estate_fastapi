@@ -18,3 +18,5 @@ class Specialist(Base):
     user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
 
     user = relationship('User', back_populates='specialist')
+    analyses = relationship('Analysis', back_populates='specialist', cascade='all, delete-orphan')
+    reviews = relationship('SpecialistReview', back_populates='specialist', cascade='all, delete-orphan')

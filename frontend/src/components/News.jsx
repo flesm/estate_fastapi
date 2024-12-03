@@ -15,7 +15,7 @@ const News = () => {
         return response.json();
       })
       .then((data) => {
-        const limitedNews = data.news.slice(0, 10);
+        const limitedNews = data.news.slice(0, 12);
         setNews(limitedNews);
         setIsLoading(false);
       })

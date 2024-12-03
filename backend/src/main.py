@@ -8,6 +8,9 @@ from estate.router import router as router_estate
 from report.router import router as router_report
 from news.router import router as router_news
 from maps.router import router as router_maps
+from analysis.router import router as router_analysis
+from review.router import router as router_review
+
 
 app = FastAPI(
     title="Estate App",
@@ -19,6 +22,8 @@ app.include_router(router_estate)
 app.include_router(router_report)
 app.include_router(router_news)
 app.include_router(router_maps)
+app.include_router(router_analysis)
+app.include_router(router_review)
 
 app.add_middleware(
     CORSMiddleware,

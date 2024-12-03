@@ -1,9 +1,6 @@
-from estate.models import Estate
-from report.models import Report
-
 from datetime import datetime
 from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTable
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, TIMESTAMP, Float
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, TIMESTAMP
 from sqlalchemy.orm import relationship
 
 from database import Base
@@ -38,3 +35,5 @@ class User(SQLAlchemyBaseUserTable[int], Base):
     estate = relationship('Estate', uselist=False, back_populates='user')
     role = relationship('Role', back_populates='users')
     specialist = relationship('Specialist', uselist=False, back_populates='user')
+    specialist_reviews = relationship('SpecialistReview', back_populates='user')
+    analysis_reviews = relationship('AnalysisReview', back_populates='user')

@@ -149,7 +149,7 @@ const MainAnalis = () => {
           <a href="/news" style={{ fontSize: "16px", color: "#333", textDecoration: "none", transition: "color 0.3s" }} className="menu-item">Новости</a>
         </Menu.Item>
         <Menu.Item key="analis">
-          <a href="#analis" style={{ fontSize: "16px", color: "#333", textDecoration: "none", transition: "color 0.3s" }} className="menu-item">Аналитика</a>
+          <a href="/analis" style={{ fontSize: "16px", color: "#333", textDecoration: "none", transition: "color 0.3s" }} className="menu-item">Аналитика</a>
         </Menu.Item>
       </Menu>
       <div style={{ marginLeft: "auto" }}>

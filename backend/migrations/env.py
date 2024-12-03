@@ -5,10 +5,8 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from src.specialist.models import Specialist
-
-from src.config import DB_HOST, DB_USER, DB_PORT, DB_NAME, DB_PASS
-from src.database import Base
+from config import DB_HOST, DB_USER, DB_PORT, DB_NAME, DB_PASS
+from database import Base
 
 import os
 import sys
