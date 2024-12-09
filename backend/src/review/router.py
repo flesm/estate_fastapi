@@ -43,16 +43,14 @@ async def create_specialist_review(
     db: AsyncSession = Depends(get_async_session),
     user=Depends(current_user),
 ):
-    # Validate the existence of the specialist
     specialist = await db.get(Specialist, spec_id)
     if not specialist:
         raise HTTPException(status_code=404, detail="Specialist not found.")
 
-    # Create and save the new review
     new_review = SpecialistReview(
-        **review_data.dict(exclude={"spec_id"}),  # Exclude spec_id from the payload
-        specialist_id=spec_id,                   # Use route parameter
-        user_id=user.id
+        **review_data.model_dump(exclude={"spec_id"}),
+        user_id=user.id,
+        spec_id=spec_id
     )
     db.add(new_review)
     await db.commit()

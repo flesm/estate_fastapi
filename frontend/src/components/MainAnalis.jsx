@@ -294,8 +294,8 @@ const MainAnalis = () => {
             }}
           >
             <div style={{ marginBottom: '16px' }}>
-              <p style={{ margin: '4px 0', lineHeight: 1.5 }}><strong>Оценочная стоимость:</strong> {reportData.estimated_value} руб.</p>
-              <p style={{ margin: '4px 0', lineHeight: 1.5 }}><strong>Цена за квадратный метр:</strong> {reportData.price_per_sqm} руб.</p>
+              <p style={{ margin: '4px 0', lineHeight: 1.5 }}><strong>Оценочная стоимость:</strong> {reportData.estimated_value} $.</p>
+              <p style={{ margin: '4px 0', lineHeight: 1.5 }}><strong>Цена за квадратный метр:</strong> {reportData.price_per_sqm} $.</p>
               <p style={{ margin: '4px 0', lineHeight: 1.5 }}><strong>Дата создания:</strong> {new Date(reportData.created_at).toLocaleString()}</p>
             </div>
 

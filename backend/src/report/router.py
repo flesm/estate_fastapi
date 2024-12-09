@@ -11,8 +11,8 @@ from database import get_async_session
 from estate.models import Estate
 from estate.schemas import EstateReadSchema, EstateCreateSchema
 from report.models import Report
+from report.services import call_spring_boot_estimation
 from report.shcemas import ReportReadSchema
-from valuation_algorithm import calculate_estimate
 
 router = APIRouter(
     prefix="/report",
@@ -21,7 +21,7 @@ router = APIRouter(
 
 
 @router.post("/create-report", response_model=ReportReadSchema)
-async def create_estate(
+async def create_report(
         estate_data: EstateCreateSchema,
         db: AsyncSession = Depends(get_async_session),
         user=Depends(current_user)
@@ -32,8 +32,13 @@ async def create_estate(
     await db.commit()
     await db.refresh(estate)
 
-    # Расчет стоимости и создание отчета
-    estimated_value, price_per_sqm = calculate_estimate(estate)
+    # Вызов алгоритма оценки через Spring Boot
+    spring_boot_response = await call_spring_boot_estimation(estate_data.model_dump())
+
+    estimated_value = spring_boot_response["generatedReport"]["estimated_value"]
+    price_per_sqm = spring_boot_response["generatedReport"]["price_per_sqm"]
+
+    # Создание отчета
     report = Report(
         estimated_value=estimated_value,
         price_per_sqm=price_per_sqm,
@@ -44,8 +49,7 @@ async def create_estate(
     await db.commit()
     await db.refresh(report)
 
-    # Преобразование объекта estate в словарь для Pydantic-схемы
-    estate_dict = estate.to_dict()  # или использовать .dict() для более старых версий Pydantic
+    estate_dict = estate.to_dict()
 
     # Возврат данных через схемы
     return ReportReadSchema(
@@ -53,8 +57,45 @@ async def create_estate(
         estimated_value=report.estimated_value,
         price_per_sqm=report.price_per_sqm,
         created_at=report.created_at,
-        estate=EstateReadSchema.model_validate(estate_dict)  # Передаем словарь
+        estate=EstateReadSchema.model_validate(estate_dict)
     )
+
+
+# @router.post("/create-report", response_model=ReportReadSchema)
+# async def create_estate(
+#         estate_data: EstateCreateSchema,
+#         db: AsyncSession = Depends(get_async_session),
+#         user=Depends(current_user)
+# ):
+#     # Создание объекта недвижимости
+#     estate = Estate(**estate_data.model_dump(), user_id=user.id)
+#     db.add(estate)
+#     await db.commit()
+#     await db.refresh(estate)
+#
+#     # Расчет стоимости и создание отчета
+#     estimated_value, price_per_sqm = calculate_estimate(estate)
+#     report = Report(
+#         estimated_value=estimated_value,
+#         price_per_sqm=price_per_sqm,
+#         estate_id=estate.id,
+#         created_at=datetime.utcnow()
+#     )
+#     db.add(report)
+#     await db.commit()
+#     await db.refresh(report)
+#
+#     # Преобразование объекта estate в словарь для Pydantic-схемы
+#     estate_dict = estate.to_dict()  # или использовать .dict() для более старых версий Pydantic
+#
+#     # Возврат данных через схемы
+#     return ReportReadSchema(
+#         id=report.id,
+#         estimated_value=report.estimated_value,
+#         price_per_sqm=report.price_per_sqm,
+#         created_at=report.created_at,
+#         estate=EstateReadSchema.model_validate(estate_dict)  # Передаем словарь
+#     )
 
 
 

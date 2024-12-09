@@ -5,7 +5,7 @@ class SpecialistReviewBase(BaseModel):
     description: str
 
 class SpecialistReviewCreate(SpecialistReviewBase):
-    spec_id: int
+    pass
 
 class SpecialistReviewOut(SpecialistReviewBase):
     id: int
@@ -19,7 +19,7 @@ class AnalysisReviewBase(BaseModel):
     description: str
 
 class AnalysisReviewCreate(AnalysisReviewBase):
-    analysis_id: int
+    pass
 
 class AnalysisReviewOut(AnalysisReviewBase):
     id: int
