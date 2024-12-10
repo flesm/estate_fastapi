@@ -381,10 +381,6 @@ function Analis() {
           )}
         </div>
         <footer style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
           backgroundColor: "rgba(159,196,240,0.42)",
           padding: "20px",
           textAlign: "center",

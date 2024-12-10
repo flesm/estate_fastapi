@@ -219,7 +219,8 @@ function SpecialistsList() {
                   <p style={{fontSize: '14px'}}><strong>Телефон:</strong> {specialist.phone_number}</p>
                   <p style={{fontSize: '14px'}}><strong>Опыт:</strong> {specialist.years_of_experience} года</p>
                   <p style={{fontSize: '14px'}}><strong>Описание:</strong> {specialist.description}</p>
-                  <p style={{fontSize: '14px'}}><strong>Социальная сеть (сайт):</strong> {specialist.social_media_url}</p>
+                  <p style={{fontSize: '14px'}}><strong>Социальная сеть (сайт):</strong> {specialist.social_media_url}
+                  </p>
                   <button
                       style={{
                         marginTop: '10px',
@@ -266,35 +267,35 @@ function SpecialistsList() {
                       <p><strong>Created:</strong> {new Date(review.time_created).toLocaleString()}</p>
 
                       {currentUserId === review.user_id && (
-                      <button
-                          style={{
-                            marginRight: '10px',
-                            padding: '5px 10px',
-                            backgroundColor: 'rgba(220,53,69,0.7)',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '5px',
-                            cursor: 'pointer',
-                          }}
-                          onClick={() => handleDeleteReview(review.id)}>Удалить</button>)}
+                          <button
+                              style={{
+                                marginRight: '10px',
+                                padding: '5px 10px',
+                                backgroundColor: 'rgba(220,53,69,0.7)',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '5px',
+                                cursor: 'pointer',
+                              }}
+                              onClick={() => handleDeleteReview(review.id)}>Удалить</button>)}
 
                       {currentUserId === review.user_id && (
-                      <button
-                          style={{
-                            padding: '5px 10px',
-                            backgroundColor: 'rgba(255,193,7,0.7)',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '5px',
-                            cursor: 'pointer',
-                          }}
-                          onClick={() => {
-                            setEditingReviewId(review.id);
-                            setEditedReview(review.description);
-                          }}
-                      >
-                        Изменить
-                      </button>)}
+                          <button
+                              style={{
+                                padding: '5px 10px',
+                                backgroundColor: 'rgba(255,193,7,0.7)',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '5px',
+                                cursor: 'pointer',
+                              }}
+                              onClick={() => {
+                                setEditingReviewId(review.id);
+                                setEditedReview(review.description);
+                              }}
+                          >
+                            Изменить
+                          </button>)}
                     </div>
                 ))}
 
@@ -307,7 +308,7 @@ function SpecialistsList() {
                     style={{width: '100%', margin: '10px 0'}}
                 />
                       <button
-                        style={{
+                          style={{
                             padding: '5px 10px',
                             backgroundColor: 'rgba(40,167,69,0.7)',
                             color: 'white',
@@ -316,7 +317,8 @@ function SpecialistsList() {
                             cursor: 'pointer',
                             marginRight: '10px',
                           }}
-                          onClick={handleEditReview}>Сохранить</button>
+                          onClick={handleEditReview}>Сохранить
+                      </button>
                     </div>
                 )}
 
@@ -330,15 +332,16 @@ function SpecialistsList() {
               />
                   <button
                       style={{
-                          padding: '5px 10px',
-                          backgroundColor: 'rgba(40,167,69,0.7)',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '5px',
-                          cursor: 'pointer',
-                          marginRight: '10px',
-                        }}
-                      onClick={handleAddReview}>Добавить отзыв</button>
+                        padding: '5px 10px',
+                        backgroundColor: 'rgba(40,167,69,0.7)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '5px',
+                        cursor: 'pointer',
+                        marginRight: '10px',
+                      }}
+                      onClick={handleAddReview}>Добавить отзыв
+                  </button>
                 </div>
               </div>
           )}

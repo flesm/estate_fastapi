@@ -75,7 +75,15 @@ const Login = () => {
           </Menu>
         </Header>
 
-        <div className="grid place-items-center min-h-[calc(100vh-80px)] bg-gray-100">
+        <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              minHeight: 'calc(100vh - 80px)',
+              backgroundColor: '#f3f4f6',
+            }}
+        >
           <div className="w-full max-w-md bg-white p-8 shadow-lg rounded-lg">
             <h2 className="text-2xl font-bold text-gray-800 text-center mb-6">Вход в аккаунт</h2>
             <Form
@@ -114,6 +122,7 @@ const Login = () => {
             </p>
           </div>
         </div>
+
         <footer style={{
           position: 'absolute',
           bottom: 0,
