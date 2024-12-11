@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from specialist.schemas import SpecialistCreate
 from specialist.models import Specialist
-from specialist.service import send_to_crm, update_crm_status
+from specialist.service import CRMController
 from database import get_async_session
 from auth.base_config import current_user
 
@@ -12,6 +12,8 @@ router = APIRouter(
     prefix="/specialist",
     tags=["Specialist"],
 )
+
+crm_controller = CRMController()
 
 @router.post("/become-specialist", response_model=SpecialistCreate)
 async def become_specialist(
@@ -47,7 +49,7 @@ async def become_specialist(
 
     # sending data to crm
     crm_data = specialist_data.model_dump()
-    crm_success = send_to_crm(crm_data)
+    crm_success = crm_controller.send_to_crm(crm_data)
 
     if not crm_success:
         raise HTTPException(status_code=500, detail="Failed to send CRM data")

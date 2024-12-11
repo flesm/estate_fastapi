@@ -7,16 +7,19 @@ from fastapi import HTTPException
 from estate.models import Estate
 from report.models import Report
 
+class SpringCaller:
+    def __init__(self):
+        self.url = "http://localhost:8080/api/estates"
 
-async def call_spring_boot_estimation(estate_data: dict):
-    async with httpx.AsyncClient() as client:
-        response = await client.post("http://localhost:8080/api/estates", json=estate_data)
-        if response.status_code != 200:
-            raise HTTPException(
-                status_code=response.status_code,
-                detail=f"Error from Spring Boot: {response.json().get('error', 'Unknown error')}"
-            )
-        return response.json()
+    async def call_spring_boot_estimation(self, estate_data: dict):
+        async with httpx.AsyncClient() as client:
+            response = await client.post(self.url, json=estate_data)
+            if response.status_code != 200:
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Error from Spring Boot: {response.json().get('error', 'Unknown error')}"
+                )
+            return response.json()
 
 class ReportService:
     def __init__(self, db: AsyncSession):

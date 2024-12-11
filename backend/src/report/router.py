@@ -12,7 +12,7 @@ from estate.models import Estate
 from estate.schemas import EstateReadSchema, EstateCreateSchema
 from estate.services import EstateService
 from report.models import Report
-from report.services import call_spring_boot_estimation, ReportService
+from report.services import ReportService, SpringCaller
 from report.shcemas import ReportReadSchema
 
 router = APIRouter(
@@ -20,34 +20,7 @@ router = APIRouter(
     tags=["Report"],
 )
 
-
-# class EstateService:
-#     def __init__(self, db: AsyncSession, user):
-#         self.db = db
-#         self.user = user
-#
-#     async def create_estate(self, estate_data: EstateCreateSchema) -> Estate:
-#         estate = Estate(**estate_data.model_dump(), user_id=self.user.id)
-#         self.db.add(estate)
-#         await self.db.commit()
-#         await self.db.refresh(estate)
-#         return estate
-
-# class ReportService:
-#     def __init__(self, db: AsyncSession):
-#         self.db = db
-#
-#     async def create_report(self, estate: Estate, estimated_value: float, price_per_sqm: float) -> Report:
-#         report = Report(
-#             estimated_value=estimated_value,
-#             price_per_sqm=price_per_sqm,
-#             estate_id=estate.id,
-#             created_at=datetime.utcnow()
-#         )
-#         self.db.add(report)
-#         await self.db.commit()
-#         await self.db.refresh(report)
-#         return report
+spring_caller = SpringCaller()
 
 @router.post("/create-report", response_model=ReportReadSchema)
 async def create_report(
@@ -60,7 +33,7 @@ async def create_report(
 
     estate = await estate_service.create_estate(estate_data)
 
-    spring_boot_response = await call_spring_boot_estimation(estate_data.model_dump())
+    spring_boot_response = await spring_caller.call_spring_boot_estimation(estate_data.model_dump())
     estimated_value = spring_boot_response["generatedReport"]["estimated_value"]
     price_per_sqm = spring_boot_response["generatedReport"]["price_per_sqm"]
 
