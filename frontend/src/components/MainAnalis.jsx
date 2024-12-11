@@ -367,7 +367,7 @@ const MainAnalis = () => {
                                   border: "none",
                               }}
                           >
-                              Узнать цену
+                              Узнать стоимость
                           </Button>
                       </Form.Item>
                   </Form>

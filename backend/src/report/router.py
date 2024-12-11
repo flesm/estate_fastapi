@@ -10,8 +10,9 @@ from auth.base_config import current_user
 from database import get_async_session
 from estate.models import Estate
 from estate.schemas import EstateReadSchema, EstateCreateSchema
+from estate.services import EstateService
 from report.models import Report
-from report.services import call_spring_boot_estimation
+from report.services import call_spring_boot_estimation, ReportService
 from report.shcemas import ReportReadSchema
 
 router = APIRouter(
@@ -20,38 +21,53 @@ router = APIRouter(
 )
 
 
+# class EstateService:
+#     def __init__(self, db: AsyncSession, user):
+#         self.db = db
+#         self.user = user
+#
+#     async def create_estate(self, estate_data: EstateCreateSchema) -> Estate:
+#         estate = Estate(**estate_data.model_dump(), user_id=self.user.id)
+#         self.db.add(estate)
+#         await self.db.commit()
+#         await self.db.refresh(estate)
+#         return estate
+
+# class ReportService:
+#     def __init__(self, db: AsyncSession):
+#         self.db = db
+#
+#     async def create_report(self, estate: Estate, estimated_value: float, price_per_sqm: float) -> Report:
+#         report = Report(
+#             estimated_value=estimated_value,
+#             price_per_sqm=price_per_sqm,
+#             estate_id=estate.id,
+#             created_at=datetime.utcnow()
+#         )
+#         self.db.add(report)
+#         await self.db.commit()
+#         await self.db.refresh(report)
+#         return report
+
 @router.post("/create-report", response_model=ReportReadSchema)
 async def create_report(
-        estate_data: EstateCreateSchema,
-        db: AsyncSession = Depends(get_async_session),
-        user=Depends(current_user)
+    estate_data: EstateCreateSchema,
+    db: AsyncSession = Depends(get_async_session),
+    user=Depends(current_user)
 ):
-    # Создание объекта недвижимости
-    estate = Estate(**estate_data.model_dump(), user_id=user.id)
-    db.add(estate)
-    await db.commit()
-    await db.refresh(estate)
+    estate_service = EstateService(db, user)
+    report_service = ReportService(db)
 
-    # Вызов алгоритма оценки через Spring Boot
+    estate = await estate_service.create_estate(estate_data)
+
     spring_boot_response = await call_spring_boot_estimation(estate_data.model_dump())
-
     estimated_value = spring_boot_response["generatedReport"]["estimated_value"]
     price_per_sqm = spring_boot_response["generatedReport"]["price_per_sqm"]
 
-    # Создание отчета
-    report = Report(
-        estimated_value=estimated_value,
-        price_per_sqm=price_per_sqm,
-        estate_id=estate.id,
-        created_at=datetime.utcnow()
-    )
-    db.add(report)
-    await db.commit()
-    await db.refresh(report)
+    report = await report_service.create_report(estate, estimated_value, price_per_sqm)
 
     estate_dict = estate.to_dict()
 
-    # Возврат данных через схемы
     return ReportReadSchema(
         id=report.id,
         estimated_value=report.estimated_value,
@@ -59,44 +75,6 @@ async def create_report(
         created_at=report.created_at,
         estate=EstateReadSchema.model_validate(estate_dict)
     )
-
-
-# @router.post("/create-report", response_model=ReportReadSchema)
-# async def create_estate(
-#         estate_data: EstateCreateSchema,
-#         db: AsyncSession = Depends(get_async_session),
-#         user=Depends(current_user)
-# ):
-#     # Создание объекта недвижимости
-#     estate = Estate(**estate_data.model_dump(), user_id=user.id)
-#     db.add(estate)
-#     await db.commit()
-#     await db.refresh(estate)
-#
-#     # Расчет стоимости и создание отчета
-#     estimated_value, price_per_sqm = calculate_estimate(estate)
-#     report = Report(
-#         estimated_value=estimated_value,
-#         price_per_sqm=price_per_sqm,
-#         estate_id=estate.id,
-#         created_at=datetime.utcnow()
-#     )
-#     db.add(report)
-#     await db.commit()
-#     await db.refresh(report)
-#
-#     # Преобразование объекта estate в словарь для Pydantic-схемы
-#     estate_dict = estate.to_dict()  # или использовать .dict() для более старых версий Pydantic
-#
-#     # Возврат данных через схемы
-#     return ReportReadSchema(
-#         id=report.id,
-#         estimated_value=report.estimated_value,
-#         price_per_sqm=report.price_per_sqm,
-#         created_at=report.created_at,
-#         estate=EstateReadSchema.model_validate(estate_dict)  # Передаем словарь
-#     )
-
 
 
 @router.get("/user-reports", response_model=List[ReportReadSchema])

@@ -1,16 +1,17 @@
 from fastapi import APIRouter, HTTPException, Query
-from maps.services import reverse_geocode
+from maps.services import YandexGeocoder
 
 router = APIRouter(
     prefix="/maps",
     tags=["Maps"],
 )
 
+yandex_geocoder = YandexGeocoder()
+
 @router.get("/get_address")
 async def get_address(lat: float = Query(...), lon: float = Query(...)):
-    """Маршрут для получения адреса по координатам."""
     try:
-        address = await reverse_geocode(lat, lon)
+        address = await yandex_geocoder.reverse_geocode(lat, lon)
         return {"address": address}
     except HTTPException as e:
         raise e
