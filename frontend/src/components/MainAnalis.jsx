@@ -83,6 +83,11 @@ const MainAnalis = () => {
         return;
       }
 
+      if (formValues.total_floors < formValues.floor_number){
+          message.error("Количество этажей не может быть меньше этажа недвижимости.");
+          return;
+      }
+
     try {
       const token = localStorage.getItem("token");
       if (!token) {

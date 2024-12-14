@@ -34,7 +34,7 @@ const Register = () => {
         if (response.ok) {
           return response.json();
         } else {
-          throw new Error('Ошибка при регистрации');
+          throw new Error('Пользователь с таким email уже существует.');
         }
       })
       .then((data) => {
